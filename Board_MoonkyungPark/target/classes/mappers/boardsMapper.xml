@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="moonkyung.park.board.dao.BoardDAO">
+	<insert id="insertBoard">
+		insert into
+		board(board_title,board_content,board_id,board_nickname) values(
+		#{board_title},#{board_content},#{board_id},#{board_nickname}
+		)
+	</insert>
+
+	<select id="getBoards" resultType="Board" parameterType="Map">
+		select * from
+		board
+		<choose>
+			<when test="searchType=='board_title'">
+				where board_title like
+				CONCAT('%',#{searchText},'%')
+			</when>
+			<when test="searchType=='board_id'">
+				where board_id like
+				CONCAT('%',#{searchText},'%')
+			</when>
+			<when test="searchType=='board_content'">
+				where board_content like
+				CONCAT('%',#{searchText},'%') </when>
+		</choose>
+		<choose>
+			<when test="orderBy==''">
+				order by board_num desc
+			</when>
+			<when test="orderBy=='writer'">
+				order by board_nickname
+			</when>
+			<when test="orderBy=='time'">
+				order by board_num
+			</when>
+		</choose>
+	</select>
+
+	<select id="getBoard" resultType="Board">
+		select* from board where
+		board_num=#{board_num}
+	</select>
+
+	<update id="upHits">
+		update board set board_hits=board_hits+1
+		where
+		board_num=#{board_num}
+	</update>
+
+	<delete id="deleteBoard">
+		delete from board where board_num=#{board_num}
+	</delete>
+
+	<update id="updateBoard">
+		update board set board_title=#{board_title},
+		board_content=#{board_content},
+		board_date=current_timestamp
+		where
+		board_num=#{board_num}
+	</update>
+
+	<update id="changeReply">
+		<choose>
+			<when test="type==0">
+				update board
+				set board_replies=board_replies+1
+				where
+				board_num=#{board_num}
+			</when>
+			<when test="type==1">
+				update board
+				set board_replies=board_replies-1
+				where
+				board_num=#{board_num}
+			</when>
+		</choose>
+
+	</update>
+</mapper>
